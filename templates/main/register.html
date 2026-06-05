@@ -1,0 +1,31 @@
+<!--    main/register.html    -->
+
+<html lang="en-gb">
+    
+    {% include "base/head.html" %}
+
+    <body>
+        <div class="container main-content">
+            <a href="/">Home</a>
+            <a href="/login">Login</a>
+
+            <form method="post" action="register-input">
+                <label for="email">Email:</label>
+                <input type="text" name="email" id="email">
+
+                <label for="name">Name:</label>
+                <input type="text" name="name" id="name">
+
+                <label for="password">Password:</label>
+                <input type="password" name="password" id="password">
+
+                <label for="password-confirm">Confirm Password:</label>
+                <input type="password" name="password-confirm" id="password-confirm">
+
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </body>
+</html>
+
+<!--    /main/register.html    -->
