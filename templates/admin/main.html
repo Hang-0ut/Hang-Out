@@ -1,0 +1,22 @@
+<!--    admin/main.html    -->
+
+<html lang="en-gb">
+    
+    {% include "base/head.html" %}
+
+    <body>
+        <div class="container main-content">
+            <h3>Admin</h3>
+
+            <a href="/">Home</a>
+            <a href="/admin/query">Query</a>
+
+            <form method="POST" action="/admin">
+                <button name="action" type="submit" value="drop_db">DROP DATABASE</button>
+            </form>
+
+        </div>
+    </body>
+</html>
+
+<!--    /admin/main.html    -->

@@ -1,0 +1,43 @@
+<!--    admin/query.html    -->
+
+<html lang="en-gb">
+    
+    {% include "base/head.html" %}
+
+    <body>
+        <div class="container main-content">
+            <h3>Query</h3>
+
+            <a href="/">Home</a>
+
+            <form action="/admin/query" method="POST">
+                <textarea name="query" class="query-box">{{ query }}</textarea>
+                <button type="submit">Submit</button>
+            </form>
+
+            {% if err != "none" %}
+                <p>{{ err }}</p>
+            {% endif %}
+
+            <table class="query-table">
+                <tr>
+                    {% for column in columns %}
+                        <th>{{ column }}</th>
+                    {% endfor %}
+                </tr>
+                {% for row in data %}
+                    <tr>
+                        {% for item in row %}
+                            <td>
+                                {{ item }}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </table>
+
+        </div>
+    </body>
+</html>
+
+<!--    /admin/query.html    -->
