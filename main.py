@@ -1,7 +1,8 @@
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, session
 from database import get_db_conn, construct_db, drop_db
 
 app = Flask(__name__)
+app.secret_key = "bguy43bf3498b8072r8"
 
 
 @app.before_request
@@ -16,12 +17,42 @@ def landing():
 
 @app.route("/register")
 def register():
-    return render_template("main/register.html")
+    err = None
+    err = request.args.get("err")
+    return render_template("main/register.html", err=err)
 
 
 @app.route("/register-input", methods=["POST"])
 def register_input():
-    return redirect(url_for("landing"))
+    name = request.form.get("name").strip().title()
+    username = request.form.get("username").strip()
+    password = request.form.get("password").strip()
+    password_confirm = request.form.get("password-confirm").strip()
+
+    if password != password_confirm:
+        return redirect(url_for("register") + "?err=passwords")
+    else:
+        conn, cur = get_db_conn()
+        query = "SELECT id FROM users WHERE username = ?"
+        cur.execute(query, (username,))
+        row = cur.fetchone()
+        if row:
+            return redirect(url_for("register") + "?err=username")
+        else:
+            query = "INSERT INTO users (name, username, password) VALUES (?, ?, ?)"
+            cur.execute(query, (name, username, password))
+            conn.commit()
+
+            query = "SELECT id FROM users WHERE username = ?"
+            cur.execute(query, (username,))
+            row = cur.fetchone()
+            if row:
+                id = row[0]
+                session["id"] = id
+                return redirect(url_for("landing"))
+            else:
+                return redirect(url_for("register") + "?err=login")
+    return redirect(url_for("register") + "?err=unknown")
 
 
 @app.route("/login")

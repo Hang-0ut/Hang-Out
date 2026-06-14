@@ -9,12 +9,29 @@
             <a href="/">Home</a>
             <a href="/login">Login</a>
 
-            <form method="post" action="register-input">
-                <label for="email">Email:</label>
-                <input type="text" name="email" id="email">
+            <h1><strong>PASSWORDS ARE NOT YET ENCRYPTED</strong></h1>
+            <h2>Do not use a real passowrd</h2>
 
-                <label for="name">Name:</label>
+            {% if err %}
+            <strong>
+                {% if err == "passwords" %}
+                    Passwords did not match
+                {% elif err == "username" %}
+                    Username already in use
+                {% elif err == "login" %}
+                    Account created, but login failed
+                {% endif %}
+            </strong>
+            {% endif %}
+
+            <form method="post" action="register-input">
+
+                <label for="name">Your name:</label>
                 <input type="text" name="name" id="name">
+
+                <label for="username">Useranme (this must be unique):</label>
+                <input type="text" name="username" id="username" pattern="^[a-zA-Z0-9_]{3,30}$">
+                <!-- Only letters, number and Unserscores -->
 
                 <label for="password">Password:</label>
                 <input type="password" name="password" id="password">
