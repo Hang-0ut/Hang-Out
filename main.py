@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, session
 from database import get_db_conn, construct_db, drop_db
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key = "bguy43bf3498b8072r8"
@@ -46,8 +47,10 @@ def register_input():
                 conn.close()
                 return redirect(url_for("register") + "?err=username")
             else:
+                password_hash = generate_password_hash(password)
+
                 query = "INSERT INTO users (name, username, password) VALUES (?, ?, ?)"
-                cur.execute(query, (name, username, password))
+                cur.execute(query, (name, username, password_hash))
                 conn.commit()
 
                 query = "SELECT id FROM users WHERE username = ?"
@@ -56,7 +59,7 @@ def register_input():
                 conn.close()
                 if row:
                     row_id = row[0]
-                    session["id"] = id
+                    session["id"] = row_id
                     return redirect(url_for("landing"))
                 else:
                     return redirect(url_for("register") + "?err=login")
@@ -67,7 +70,9 @@ def register_input():
 
 @app.route("/login")
 def login():
-    return render_template("main/login.html")
+    err = None
+    err = request.args.get("err")
+    return render_template("main/login.html", err=err)
 
 
 @app.route("/login-input", methods=["POST"])
@@ -87,7 +92,8 @@ def login_input():
         if row:
             row_id = row[0]
             row_password = row[1]
-            if row_password == password:
+
+            if check_password_hash(row_password, password):
                 session["id"] = row_id
                 return redirect(url_for("landing"))
             else:

@@ -9,9 +9,6 @@
             <a href="/">Home</a>
             <a href="/login">Login</a>
 
-            <h1><strong>PASSWORDS ARE NOT YET ENCRYPTED</strong></h1>
-            <h2>Do not use a real passowrd</h2>
-
             {% if err %}
             <strong>
                 {% if err == "passwords" %}
@@ -42,6 +39,8 @@
 
                 <label for="password-confirm">Confirm Password:</label>
                 <input type="password" name="password-confirm" id="password-confirm">
+
+                <small>Your password will be encrypted to all users and developers</small>
 
                 <button type="submit">Submit</button>
             </form>
