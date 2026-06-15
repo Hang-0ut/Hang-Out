@@ -24,34 +24,44 @@ def register():
 
 @app.route("/register-input", methods=["POST"])
 def register_input():
-    name = request.form.get("name").strip().title()
-    username = request.form.get("username").strip()
-    password = request.form.get("password").strip()
-    password_confirm = request.form.get("password-confirm").strip()
+    form_name = request.form.get("name").strip().title()
+    form_username = request.form.get("username").strip()
+    form_password = request.form.get("password").strip()
+    form_password_confirm = request.form.get("password-confirm").strip()
 
-    if password != password_confirm:
-        return redirect(url_for("register") + "?err=passwords")
-    else:
-        conn, cur = get_db_conn()
-        query = "SELECT id FROM users WHERE username = ?"
-        cur.execute(query, (username,))
-        row = cur.fetchone()
-        if row:
-            return redirect(url_for("register") + "?err=username")
+    if form_name and form_username and form_password and form_password_confirm:
+        name = form_name.strip().title()
+        username = form_username.strip()
+        password = form_password.strip()
+        password_confirm = form_password_confirm.strip()
+
+        if password != password_confirm:
+            return redirect(url_for("register") + "?err=passwords")
         else:
-            query = "INSERT INTO users (name, username, password) VALUES (?, ?, ?)"
-            cur.execute(query, (name, username, password))
-            conn.commit()
-
+            conn, cur = get_db_conn()
             query = "SELECT id FROM users WHERE username = ?"
             cur.execute(query, (username,))
             row = cur.fetchone()
             if row:
-                id = row[0]
-                session["id"] = id
-                return redirect(url_for("landing"))
+                conn.close()
+                return redirect(url_for("register") + "?err=username")
             else:
-                return redirect(url_for("register") + "?err=login")
+                query = "INSERT INTO users (name, username, password) VALUES (?, ?, ?)"
+                cur.execute(query, (name, username, password))
+                conn.commit()
+
+                query = "SELECT id FROM users WHERE username = ?"
+                cur.execute(query, (username,))
+                row = cur.fetchone()
+                conn.close()
+                if row:
+                    row_id = row[0]
+                    session["id"] = id
+                    return redirect(url_for("landing"))
+                else:
+                    return redirect(url_for("register") + "?err=login")
+    else:
+        return redirect(url_for("register") + "?err=input")
     return redirect(url_for("register") + "?err=unknown")
 
 
@@ -62,7 +72,37 @@ def login():
 
 @app.route("/login-input", methods=["POST"])
 def login_input():
-    return redirect(url_for("landing"))
+    form_username = request.form.get("username")
+    form_password = request.form.get("password")
+
+    if form_username and form_password:
+        username = form_username.strip()
+        password = form_password.strip()
+
+        conn, cur = get_db_conn()
+        query = "SELECT id, password FROM users WHERE username = ?"
+        cur.execute(query, (username,))
+        row = cur.fetchone()
+        conn.close()
+        if row:
+            row_id = row[0]
+            row_password = row[1]
+            if row_password == password:
+                session["id"] = row_id
+                return redirect(url_for("landing"))
+            else:
+                return redirect(url_for("login") + "?err=incorrect")
+        else:
+            return redirect(url_for("login") + "?err=incorrect")
+    else:
+        return redirect(url_for("login") + "?err=input")
+    return redirect(url_for("login") + "?err=unknown")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
 
 
 # admin routes

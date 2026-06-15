@@ -20,6 +20,10 @@
                     Username already in use
                 {% elif err == "login" %}
                     Account created, but login failed
+                {% elif err == "input" %}
+                    Invalid input
+                {% else %}
+                    An unknown error occoured
                 {% endif %}
             </strong>
             {% endif %}

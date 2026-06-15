@@ -9,9 +9,21 @@
             <a href="/">Home</a>
             <a href="/register">Register</a>
 
+            {% if err %}
+            <strong>
+                {% if err == "incorrect" %}
+                    Incorrect username or password
+                {% elif err == "input" %}
+                    Invalid input
+                {% else %}
+                    An unknown error occoured
+                {% endif %}
+            </strong>
+            {% endif %}
+
             <form method="post" action="login-input">
-                <label for="email">Email:</label>
-                <input type="text" name="email" id="email">
+                <label for="username">uesrname:</label>
+                <input type="text" name="username" id="username">
 
                 <label for="password">Password:</label>
                 <input type="password" name="password" id="password">
