@@ -1,0 +1,9 @@
+data/database.db
+!data/.gitkeep
+
+static/images/users/*
+!static/images/users/.gitkeep
+
+
+static/images/comments/*
+!static/images/comments/.gitkeep
