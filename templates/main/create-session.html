@@ -1,0 +1,47 @@
+<!--    main/create-session.html    -->
+
+<html lang="en-gb">
+    
+    {% include "base/head.html" %}
+
+    <body>
+        <div class="container main-content">
+            <a href="/">Home</a>
+
+            {% if err %}
+            <strong>
+                An unknown error occoured
+            </strong>
+            {% endif %}
+
+            <form method="post" action="/create-session-input">
+
+                <!-- Only required item:  -->
+                <label for="start-time">Start time:</label>
+                <input type="time" name="start-time" id="start-time" required>
+                <!-- OR in ___ mins/hours -->
+
+                <p>More options:</p>
+
+                <label for="end-time">End time:</label>
+                <input type="time" name="start-time" id="start-time">
+                <!-- OR input duration -->
+
+                <label for="for-users">For spesific users:</label>
+                <input name="for-users" id="for-users">
+                <!-- UNFINISHED, NOT WORKING  -->
+
+                <label for="for-groups">For spesific groups:</label>
+                <input name="for-groups" id="for-groups">
+                <!-- UNFINISHED, NOT WORKING  -->
+
+                
+                <small>If both are left blank, notifications will be sent to everyone on your friends list</small>
+
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </body>
+</html>
+
+<!--    /main/create-session.html    -->

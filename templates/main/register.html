@@ -28,19 +28,20 @@
             <form method="post" action="register-input">
 
                 <label for="name">Your name:</label>
-                <input type="text" name="name" id="name">
+                <input type="text" name="name" id="name" required>
 
                 <label for="username">Useranme (this must be unique):</label>
-                <input type="text" name="username" id="username" pattern="^[a-zA-Z0-9_]{3,30}$">
-                <!-- Only letters, number and Unserscores -->
+                <input type="text" name="username" id="username" pattern="^[a-zA-Z0-9_]{3,30}$" required>
+                <small>Only letters, number and Unserscores</small>
 
                 <label for="password">Password:</label>
-                <input type="password" name="password" id="password">
+                <input type="password" name="password" id="password" required>
 
                 <label for="password-confirm">Confirm Password:</label>
-                <input type="password" name="password-confirm" id="password-confirm">
+                <input type="password" name="password-confirm" id="password-confirm" required>
 
                 <small>Your password will be encrypted to all users and developers</small>
+                <small>All inputs will be stripped of trailing whitespace</small>
 
                 <button type="submit">Submit</button>
             </form>
