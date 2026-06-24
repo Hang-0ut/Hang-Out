@@ -105,6 +105,16 @@ def login_input():
     return redirect(url_for("login") + "?err=unknown")
 
 
+@app.route("/create-session")
+def create_sesion():
+    return render_template("main/create-session.html")
+
+
+@app.route("/create-session-input", methods=["POST"])
+def create_session_input():
+    return redirect(url_for("landing"))
+
+
 @app.route("/logout")
 def logout():
     session.clear()
