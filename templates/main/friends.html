@@ -1,0 +1,32 @@
+<!--    main/friends.html    -->
+
+<html lang="en-gb">
+    
+    {% include "base/head.html" %}
+
+    <body>
+        <div class="container main-content">
+            <a href="/">Home</a>
+
+            {% if err %}
+            <strong>
+                An unknown error occoured
+            </strong>
+            {% endif %}
+
+            <form method="post" action="/friends">
+
+                <label for="username">Enter username:</label>
+                <input type="text" id="username" name="username" required>
+
+                <button type="submit">Submit</button>
+            </form>
+
+            <div class="search-results">
+
+            </div>
+        </div>
+    </body>
+</html>
+
+<!--    /main/friends.html    -->

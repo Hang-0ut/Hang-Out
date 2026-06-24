@@ -105,6 +105,21 @@ def login_input():
     return redirect(url_for("login") + "?err=unknown")
 
 
+@app.route("/friends", methods=["GET", "POST"])
+def friends():
+    return render_template("main/friends.html")
+
+
+@app.route("/create-group")
+def create_group():
+    return render_template("main/create-group.html")
+
+
+@app.route("/create-group-input", methods=["POST"])
+def create_group_input():
+    return redirect(url_for("friends"))
+
+
 @app.route("/create-session")
 def create_sesion():
     return render_template("main/create-session.html")
