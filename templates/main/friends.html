@@ -17,14 +17,32 @@
             <form method="post" action="/friends">
 
                 <label for="username">Enter username:</label>
-                <input type="text" id="username" name="username" required>
+                <input type="text" id="username" name="username" value="{{ username }}" required>
 
-                <button type="submit">Submit</button>
+                <button type="submit" name="action" value="none">Submit</button>
+
+                {% if search_results != "none" %}
+                    <div class="search-results">
+                        {% if search_results|length > 0 %}
+                            {% for result in search_results %}
+                                <p>{{ result[1] }}<button type=submit name="action" value="add-{{ result[0] }}">Add friend</button></p>
+                            {% endfor %}
+                        {% else %}
+                            <p>No results found</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <div class="friends-list">
+                    {% if friends|length > 0 %}
+                        {% for friend in friends %}
+                            <p>{{ friend[1] }} <small>{{ friend[2] }}</small><button type=submit name="action" value="remove-{{ friend[0] }}">Remove</button></p>
+                        {% endfor %}
+                    {% else %}
+                        <p>No friends hahah</p>
+                    {% endif %}
+                </div>
             </form>
-
-            <div class="search-results">
-
-            </div>
         </div>
     </body>
 </html>

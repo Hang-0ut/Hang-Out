@@ -1,9 +1,20 @@
 from flask import Flask, render_template, redirect, url_for, request, session
 from database import get_db_conn, construct_db, drop_db
 from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = "bguy43bf3498b8072r8"
+
+
+def login_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not session.get("id"):
+            return redirect("/login")
+        return func(*args, **kwargs)
+
+    return decorated_view
 
 
 @app.before_request
@@ -105,31 +116,83 @@ def login_input():
     return redirect(url_for("login") + "?err=unknown")
 
 
+def get_friends_of(user_id, conn, cur):
+    query = "SELECT friends FROM users WHERE id = ?"
+    cur.execute(query, (user_id,))
+    row = cur.fetchone()
+    friends_ids_str = row[0]
+    if friends_ids_str:
+        friends_id_list = friends_ids_str.split(",")
+        placeholders = ",".join(["?"] * len(friends_id_list))
+        query = f"SELECT id, name, username FROM users WHERE id IN ({placeholders})"
+        cur.execute(query, friends_id_list)
+        friends = cur.fetchall()
+    else:
+        friends = []
+    
+    return friends
+
+
+@login_required
 @app.route("/friends", methods=["GET", "POST"])
 def friends():
-    return render_template("main/friends.html")
+    user_id = session.get("id")
+    conn, cur = get_db_conn()
+    username = ""
+
+    if request.method == "POST":
+        username = request.form.get("username")
+        like_username = f"%{username}%"
+        query = "SELECT id, username FROM users WHERE username LIKE ? AND id != ?"
+        cur.execute(query, (like_username, user_id))
+        search_results = cur.fetchall()
+
+        action = request.form.get("action")
+        if action != "none":
+            action, friend_id = action.split("-")
+            friends = get_friends_of(user_id, conn, cur)
+            if action == "remove":
+                if friend_id in friends:
+                    friends.remove(friend_id)
+            elif action == "add":
+                friends.append(friend_id)
+            friends_str = ",".join(friends)
+            query = "UPDATE users SET friends = ? WHERE id = ?"
+            cur.execute(query, (friends_str, user_id))
+            conn.commit()
+    else:
+        search_results = "none"
+
+    friends = get_friends_of(user_id, conn, cur)
+    conn.close()
+    return render_template("main/friends.html", friends=friends, search_results=search_results, username=username)
 
 
+@login_required
 @app.route("/create-group")
 def create_group():
     return render_template("main/create-group.html")
 
 
+@login_required
 @app.route("/create-group-input", methods=["POST"])
 def create_group_input():
     return redirect(url_for("friends"))
 
 
+@login_required
 @app.route("/create-session")
 def create_sesion():
     return render_template("main/create-session.html")
 
 
+@login_required
 @app.route("/create-session-input", methods=["POST"])
 def create_session_input():
     return redirect(url_for("landing"))
 
 
+@login_required
 @app.route("/logout")
 def logout():
     session.clear()
