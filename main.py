@@ -116,22 +116,28 @@ def login_input():
     return redirect(url_for("login") + "?err=unknown")
 
 
-def get_friends_of(user_id, conn, cur):
-    query = "SELECT friends FROM users WHERE id = ?"
-    cur.execute(query, (user_id,))
-    row = cur.fetchone()
-    friends_ids_str = row[0]
-    if friends_ids_str:
-        friends_id_list = friends_ids_str.split(",")
-        placeholders = ",".join(["?"] * len(friends_id_list))
-        query = f"SELECT id, name, username FROM users WHERE id IN ({placeholders})"
-        cur.execute(query, friends_id_list)
-        friends = cur.fetchall()
+def get_friends_of(user_id, conn, cur, id_only=False):
+    if not conn:
+        raise SystemError("Database connection not found")
     else:
-        friends = []
-    
-    return friends
-
+        query = "SELECT friends FROM users WHERE id = ?"
+        cur.execute(query, (user_id,))
+        row = cur.fetchone()
+        friends_ids_str = row[0]
+        
+        if friends_ids_str:
+            if id_only:
+                friends_ids_list = friends_ids_str.split(",")
+                return friends_ids_list
+            else:
+                friends_id_list = friends_ids_str.split(",")
+                placeholders = ",".join(["?"] * len(friends_id_list))
+                query = f"SELECT id, name, username FROM users WHERE id IN ({placeholders})"
+                cur.execute(query, friends_id_list)
+                friends = cur.fetchall()
+                return friends
+        else:
+            return []
 
 @login_required
 @app.route("/friends", methods=["GET", "POST"])
@@ -139,6 +145,9 @@ def friends():
     user_id = session.get("id")
     conn, cur = get_db_conn()
     username = ""
+    
+    print(get_friends_of(user_id, conn, cur, id_only=True))
+    print(get_friends_of(user_id, conn, cur, id_only=False))
 
     if request.method == "POST":
         username = request.form.get("username")
@@ -150,13 +159,16 @@ def friends():
         action = request.form.get("action")
         if action != "none":
             action, friend_id = action.split("-")
-            friends = get_friends_of(user_id, conn, cur)
+            friends = get_friends_of(user_id, conn, cur, id_only=True)
+            print("friends before: " + str(friends))
             if action == "remove":
                 if friend_id in friends:
                     friends.remove(friend_id)
             elif action == "add":
                 friends.append(friend_id)
+            print("friends now: " + str(friends))
             friends_str = ",".join(friends)
+            print("friends str: " + str(friends_str))
             query = "UPDATE users SET friends = ? WHERE id = ?"
             cur.execute(query, (friends_str, user_id))
             conn.commit()
