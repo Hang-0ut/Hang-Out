@@ -16,9 +16,42 @@
 
             <form method="post" action="/create-group-input">
 
-                
+                <label for="name">Group name:</label>
+                <input type="text" id="name" name="name" pattern="^(?=(?:.*\S){3,})\S.*$" {# This regex is to check for at least 3 non-whitespace chars #} required>
+
+                {% if friends == [] %}
+                    <p>No friends haha</p>
+                    <p>Add some and you can add them to the group.</p>
+                {% else %}
+                    <label for="members">Group members:</label>
+
+                    <select id="members" name="members" multiple>
+                        {% for friend in friends %}
+                            <option value="{{ friend[0] }}">{{ friend[1] }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <small>You can add more members later.</small>
+
+                    <script>
+                        new TomSelect("#members", {
+                            plugins: ["remove_button"],
+                            create: false,
+                            hideSelected: true,
+                            closeAfterSelect: false,
+                            placeholder: "Search and select friends..."
+                        });
+                    </script>
+                {% endif %}
+
+                <label for="rand-colour">Random colour</label>
+                <input type="checkbox" id="rand-colour" name="rand-colour" checked>
+
+                <label for="colour">Group colour:</label>
+                <input type="color" name="colour">
 
                 <button type="submit">Submit</button>
+
             </form>
         </div>
     </body>

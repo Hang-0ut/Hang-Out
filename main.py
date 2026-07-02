@@ -2,6 +2,7 @@ from flask import Flask, render_template, redirect, url_for, request, session
 from database import get_db_conn, construct_db, drop_db
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+import random
 
 app = Flask(__name__)
 app.secret_key = "bguy43bf3498b8072r8"
@@ -139,15 +140,13 @@ def get_friends_of(user_id, conn, cur, id_only=False):
         else:
             return []
 
+
 @login_required
 @app.route("/friends", methods=["GET", "POST"])
 def friends():
     user_id = session.get("id")
     conn, cur = get_db_conn()
     username = ""
-    
-    print(get_friends_of(user_id, conn, cur, id_only=True))
-    print(get_friends_of(user_id, conn, cur, id_only=False))
 
     if request.method == "POST":
         username = request.form.get("username")
@@ -176,6 +175,9 @@ def friends():
         search_results = "none"
 
     friends = get_friends_of(user_id, conn, cur)
+
+    # get groups
+
     conn.close()
     return render_template("main/friends.html", friends=friends, search_results=search_results, username=username)
 
@@ -183,12 +185,37 @@ def friends():
 @login_required
 @app.route("/create-group")
 def create_group():
-    return render_template("main/create-group.html")
+    user_id = session.get("id")
+    conn, cur = get_db_conn()
+    friends = get_friends_of(user_id, conn, cur)
+
+    conn.close()
+    return render_template("main/create-group.html", friends=friends)
 
 
 @login_required
 @app.route("/create-group-input", methods=["POST"])
 def create_group_input():
+    user_id = session.get("id")
+    name = request.form.get("name")
+    members = request.form.getlist("members")
+    rand_colour = request.form.get("rand-colour")
+    colour = request.form.get("colour")
+    
+    print(members)
+    if members and len(members) > 0:
+        members_str = ",".join(members)
+    else:
+        members_str = ""
+    
+    if rand_colour == "on":
+        colour = f"#{random.randint(0, 0xFFFFFF):06X}" # TEMPORARY SOLUTION
+
+    conn, cur = get_db_conn()
+    query = "INSERT INTO groups (owner_id, group_name, users, colour) VALUES (?, ?, ?, ?)"
+    cur.execute(query, (user_id, name, members_str, colour))
+    conn.commit()
+    conn.close()
     return redirect(url_for("friends"))
 
 
